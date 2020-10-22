@@ -1,14 +1,14 @@
 import React,{Component} from 'react';
+import ReviewControls from './ReviewControl'
 import './Reviews.css';
 import API from '../../../utils/API'
-
 class Reviews extends Component {
     state = {
         error:false,
         loadStatus: true,
         user : [],
         upvotes: this.props.upvotes,
-        downvotes: this.props.downvotes
+        downvotes: this.props.downvotes,
     }
     componentDidMount(){
         API.get(`/api/user/${this.props.author}`)
@@ -20,6 +20,25 @@ class Reviews extends Component {
             console.log(error);
           });
     }
+    deleteReview = () => {
+        if(window.confirm("Are you sure want to Delete your Review "))
+        {
+            API.delete(`/api/review/${this.props.review_id}`)
+            .then(response => {
+                console.log(response)
+                alert("Your Review was deleted Successfully")
+                window.location.reload(true)
+            }).catch(function (error){
+                console.log(error)
+                alert("Sorry Review Could not be deleted")
+            }) 
+        }
+    }
+
+
+    
+    
+
 
     render() {
         const upvote = ()=>{
@@ -33,7 +52,7 @@ class Reviews extends Component {
             <div className = 'review-container'>
                 <div className = "columns is-vcentered is-mobile">
                     <div className = "column is-2">
-                        <div className = "review-circle">
+                        <div className = "course-review-circle">
                             <div className = "review-circle-text"> {this.props.rating}</div>
                         </div>
                     </div>
@@ -44,7 +63,10 @@ class Reviews extends Component {
                             {this.props.desc}
                             <span className = "">"</span>
                         </div>
+                        <ReviewControls review_rating = {this.props.rating} review_id = {this.props.review_id} current_user = {this.props.current_user} author = {this.state.user} course_id = {this.props.course_id} course_rating = {this.props.course_rating} course_revCount = {this.props.course_revCount}/>
                     </div>
+                    
+                    
                     <div className = "column has-text-centered">
                         <span className = "has-text-weight-bold">{this.state.upvotes}</span><br/>
                         <button className = "button is-white" onClick = {upvote}><i className="far fa-thumbs-up icon is-large"></i></button><br/>
