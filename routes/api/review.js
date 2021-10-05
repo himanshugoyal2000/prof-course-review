@@ -1,17 +1,17 @@
 var Review = require('../../models/Review')
-const passport = require("passport");
+var Vote = require('../../models/Vote');
 const express = require("express");
 const utils = require('./utils')
 
 require('dotenv/config');
 
-router = express.Router();
+const router = express.Router();
 
 router.get("/",async (req,res)=>{
     /// get a list of all reviews in the database
     try {
         // if(req.isAuthenticated() || process.env.NODE_ENV == "test"){
-            utils.record_activity(req.user.email, "reveiew_all", req.device.type);
+            utils.record_activity(req, "reveiew_all");
             const review = await Review.find()
             res.json(review);
         // }
@@ -22,7 +22,7 @@ router.get("/",async (req,res)=>{
     catch (error) {
         res.json({message: error})
         console.log(error);
-    };
+    }
 });
 
 router.get("/count",async (req,res)=>{
@@ -30,7 +30,7 @@ router.get("/count",async (req,res)=>{
         
 
         if(req.isAuthenticated() || process.env.NODE_ENV == "test"){
-            utils.record_activity(req.user.email, "review_count", req.device.type);
+            utils.record_activity(req, "review_count");
             Review.countDocuments({},(err,count)=>{
                 if(err){
                     res.status(500).send({status:false,error:err})
@@ -52,11 +52,22 @@ router.get("/count",async (req,res)=>{
     
 });
 
+router.get("/votes/:id", async(req,res) => {
+    try {
+        const votes = await Vote.find({Parent: req.params.id});
+        res.json(votes);
+    }
+    catch (error) {
+        res.json({message: error})
+        console.log(error);
+    }
+})
+
 router.post("/add",async (req,res)=>{
     try {
         
         if(req.isAuthenticated() || process.env.NODE_ENV == "test"){
-            utils.record_activity(req.user.email, "review_add", req.device.type);
+            utils.record_activity(req, "review_add");
             const review_object = new Review({
                 Parent: req.body.Parent,
                 Author: req.body.Author,
@@ -68,7 +79,7 @@ router.post("/add",async (req,res)=>{
             });
             const savedReview = await review_object.save();
             console.log("New Review added successfully");
-            res.json({status:true, newReview: review_object});
+            res.json({status:true, newReview: review_object, savedReview});
         }
         else{
             res.status(401).send("Unauthorized")
@@ -81,7 +92,7 @@ router.post("/add",async (req,res)=>{
 
 router.get('/:id',async (req,res)=>{
     try {
-        utils.record_activity(req.user.email, "review_get", req.device.type);
+        utils.record_activity(req, "review_get");
             const review = await Review.findById(req.params.id);
             res.json(review); 
         // }
@@ -97,7 +108,7 @@ router.patch("/:id",async (req,res)=>{
     /// update the attributes of a course in the database 
     try {
         if(req.isAuthenticated() || process.env.NODE_ENV == "test"){
-            utils.record_activity(req.user.email, "review_update", req.device.type);
+            utils.record_activity(req, "review_update");
             const updatedReview = await Review.updateOne({_id: req.params.id},  {$set: req.body});
             const review = await Review.findById(req.params.id);
             console.log("Professor updated successfully");
@@ -115,7 +126,7 @@ router.patch("/:id",async (req,res)=>{
 router.delete('/:id',async (req,res) => {
     try {
         if (req.isAuthenticated() || process.env.NODE_ENV == "test") {
-            utils.record_activity(req.user.email, "review_update", req.device.type);
+            utils.record_activity(req, "review_update");
             const removedReview = await Review.deleteOne({_id: req.params.id});
             console.log("Review deleted successfully")
             res.json(removedReview)
@@ -126,6 +137,8 @@ router.delete('/:id',async (req,res) => {
         res.json({message: error})
     }
 });
+
+
 
 
 module.exports = router;

@@ -76,7 +76,7 @@ class CourseDetails extends Component {
             });
             for(var i=0; i<reviews.length;i++)
             {
-              if(reviews[i].Author === this.props.current_user._id && current_user_review === false)
+              if(reviews[i].Author === this.props.current_user._id && current_user_review === false && this.props.current_user.name !== "Test User" )
               {
                 current_user_review = true
               }
@@ -123,11 +123,6 @@ class CourseDetails extends Component {
                 <div className = "Review"> {review} </div>
                 <footer className="footer">
                   <div className="content has-text-centered">
-                    <p>
-                      <strong>Bulma</strong> by <a href="https://jgthms.com">Jeremy Thomas</a>. The source code is licensed
-                      <a href="http://opensource.org/licenses/mit-license.php">MIT</a>. The website content
-                      is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
-                    </p>
                   </div>
                 </footer>
               

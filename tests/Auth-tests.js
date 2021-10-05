@@ -8,7 +8,22 @@ require('dotenv/config');
 
 process.env['NODE_ENV'] = "Production"
 
-/// Testing if arithmetic is true. Spoiler alert: it is
+const responseChecker = (done,endpoint) => {
+	chai.request(server)
+		.post(`/api/${endpoint}/add`,{})
+		.end((err,res)=>{
+			res.should.have.status(401);
+			done();
+		});
+}
+
+const endPointHelper = [
+	'course',
+	'prof',
+	'review',
+	'vote'
+]
+
 describe('Basic Math', function() {
   describe('#indexOf()', function() {
     it('should return -1 when the value is not present', function() {
@@ -23,6 +38,7 @@ describe('Basic Math', function() {
 });
 
 describe('Test API', function(){
+
 	describe('Endpoint /api', function(){
 		it('returns correct status', function(done) {
 		  chai.request(server)
@@ -46,30 +62,10 @@ describe('Test API', function(){
 	});
 
 	describe('Test intrusion: access protected endpoints with no login', function(){
-		// try accessing api endpoints without logging in
-		it('/api/course returns unauthorized', function(done) {
-		  chai.request(server)
-		    .get('/api/course')
-		    .end(function(err, res){
-		      res.should.have.status(401);
-		      done();
-		    });
-    });
-    it('/api/prof returns unauthorized', function(done) {
-		  chai.request(server)
-		    .get('/api/prof')
-		    .end(function(err, res){
-		      res.should.have.status(401);
-		      done();
-		    });
-    });
-    it('/api/review returns unauthorized', function(done) {
-		  chai.request(server)
-		    .get('/api/review')
-		    .end(function(err, res){
-		      res.should.have.status(401);
-		      done();
-		    });
-		});
+		endPointHelper.map(endpoint => {
+			it(`/api/${endpoint}/add returns unauthorized`, function(done) {
+				responseChecker(done,endpoint)
+		  });
+		})
 	});
 });
